@@ -1,0 +1,7 @@
+{
+  "name": "GeoMaps",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
