@@ -15,7 +15,7 @@ import Swal from 'sweetalert2';
 export class Tab1Page implements OnInit {
   map: mapboxgl.Map | undefined;
   marker: mapboxgl.Marker | undefined; // Declaramos la propiedad marker
-  selectedOption: string = '';
+  selectedOption: string = '1000';
 
   constructor(private geolocation: Geolocation) {}
   ngOnInit() {
@@ -23,87 +23,132 @@ export class Tab1Page implements OnInit {
   }
 
   loadMap() {
-    this.map = new mapboxgl.Map({
-      container: 'map', // ID del contenedor en el HTML
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [-101.683670, 21.122115], // Posición inicial (México CDMX por ejemplo)
-      zoom: 12,
-      accessToken: environment.mapboxToken // Establecer el token aquí
-    });
-    this.map.resize();
-
+    // Inicializar el mapa solo si no está inicializado
+    if (!this.map) {
+      this.map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [-101.683670, 21.122115],
+        zoom: 13,
+        accessToken: environment.mapboxToken
+      });
+      this.map.resize();
+    }
+  
     // Monitorear la ubicación del usuario
     const watch = this.geolocation.watchPosition();
-
+  
     watch.subscribe((data) => {
-      // Verificar si la respuesta es un error
       if ('coords' in data) {
-        console.log(data);
-        // Si es una posición válida, actualizamos el mapa
+        console.log(data.coords.longitude);
+        console.log(data.coords.latitude);
         const userLocation: [number, number] = [
           data.coords.longitude,
           data.coords.latitude
         ];
-
-        // Verificamos si this.map está inicializado
+  
         if (this.map) {
           // Actualiza la posición central del mapa
           this.map.setCenter(userLocation);
-
-          // Si ya existe un marcador, actualiza su posición
+  
+          // Actualiza el marcador
           if (this.marker) {
             this.marker.setLngLat(userLocation);
           } else {
-            // Si no existe un marcador, crea uno
             this.marker = new mapboxgl.Marker()
               .setLngLat(userLocation)
               .addTo(this.map);
           }
+  
           this.map.resize();
-        } else {
-          console.error('El mapa no está inicializado.');
-           // Mensaje
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: `El mapa no está inicializado.`,
-            confirmButtonText: 'Aceptar',
-            target: 'body',  // Forzamos a que el modal se muestre en el body
-            customClass: {
-              container: 'swal2-container'  // Aplica clase personalizada
-            }
-          });
-        }
-        
-      } else {
-        this.map = new mapboxgl.Map({
-          container: 'map', // ID del contenedor en el HTML
-          style: 'mapbox://styles/mapbox/streets-v11',
-          center: [-101.683670, 21.122115], // Posición inicial (México CDMX por ejemplo)
-          zoom: 12,
-          accessToken: environment.mapboxToken // Establecer el token aquí
+          // Dibuja el círculo de proximidad
+         // this.drawCircle(userLocation, 1000);
+          this.map.on('style.load', () => {
+          // Aquí puedes agregar tus fuentes y capas
+         // this.drawCircle(userLocation, 1000); // Llama a tu método para dibujar el círculo
+
+           // Dibuja el círculo por defecto con el radio de la opción seleccionada
+          const radius = Number(this.selectedOption) || 1000; // Valor por defecto de 1000 si no se selecciona
+          this.drawCircle(userLocation, radius); // Actualiza con el nuevo radio
+          
         });
-        this.map.resize();
-        // Manejar el error
+        }
+      } else {
         console.error('Error al obtener la ubicación:', data);
-        
         Swal.fire({
           icon: 'error',
           title: 'Error',
           text: `No se pudo obtener la ubicación: ${data.message}`,
-          confirmButtonText: 'Aceptar',
-          target: 'body',  // Forzamos a que el modal se muestre en el body
-          customClass: {
-          container: 'swal2-container'  // Aplica clase personalizada
-          }
         });
-          
       }
     });
   }
+   // Método para dibujar el círculo
+   drawCircle(center: [number, number], radius: number) {
+    const circle = this.createCircle(center, radius);
+  
+    if (this.map) {
+      // Verificar si la capa ya existe y eliminarla si es necesario
+      if (this.map.getLayer('circle-layer')) {
+        this.map.removeLayer('circle-layer');
+      }
+  
+      // Verificar si la fuente ya existe y eliminarla si es necesario
+      if (this.map.getSource('circle')) {
+        this.map.removeSource('circle');
+      }
+  
+      // Añadir el círculo como fuente GeoJSON
+      this.map.addSource('circle', {
+        type: 'geojson',
+        data: circle,
+      });
+  
+      // Añadir el círculo al mapa
+      this.map.addLayer({
+        id: 'circle-layer',
+        type: 'fill',
+        source: 'circle',
+        layout: {},
+        paint: {
+          'fill-color': '#888',
+          'fill-opacity': 0.5,
+        },
+      });
+    }
+  }
+
+  
+  // Método para crear un círculo en formato GeoJSON
+  createCircle(center: [number, number], radius: number) {
+    const numPoints = 64; // Número de puntos que formarán el círculo
+    const coords: [number, number][] = [];
+
+    for (let i = 0; i < numPoints; i++) {
+      const angle = (i / numPoints) * 2 * Math.PI;
+      const lng = center[0] + (radius / 6378137) * (180 / Math.PI) * Math.cos(angle);
+      const lat = center[1] + (radius / 6378137) * (180 / Math.PI) * Math.sin(angle);
+      coords.push([lng, lat]);
+    }
+
+    // Cierra el círculo volviendo al primer punto
+    coords.push(coords[0]);
+
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [coords], // Debe ser un array de arrays para un polígono
+      },
+      properties: {}, // Propiedades vacías
+    } as GeoJSON.Feature<GeoJSON.Geometry>; // Asegurando que el tipo es correcto
+  }
+  
+
   onOptionChange() {
     console.log('Opción seleccionada:', this.selectedOption);
     // Aquí puedes agregar lógica adicional basada en la opción seleccionada
+    
   }
 
 }
