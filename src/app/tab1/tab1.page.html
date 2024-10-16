@@ -13,7 +13,17 @@
     </ion-toolbar>
   </ion-header>
 
-  <!--<app-explore-container name="Mapa"></app-explore-container>-->
-  <div id="map"></div>
+  <div class="map-container">
+    <div class="select-container">
+      <!--interface="popover" -->
+      <ion-select [(ngModel)]="selectedOption" (ionChange)="onOptionChange()" label="Proximidad" label-placement="floating">
+        <ion-select-option value="option1">1 km</ion-select-option>
+        <ion-select-option value="option2">5 km</ion-select-option>
+        <ion-select-option value="option3">10 km</ion-select-option>
+      </ion-select>
+    </div>
+    
+    <div id="map"></div>
+  </div>
   
 </ion-content>

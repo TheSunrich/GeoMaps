@@ -1,4 +1,44 @@
+.map-container {
+    position: relative; /* Necesario para posicionar elementos hijos */
+    height: 100%; /* El contenedor ocupará toda la altura disponible */
+}
+
 #map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: 100%;
     height: 100%;
 }
+
+ion-select {
+    position: absolute; /* Coloca el combo box en la parte superior */
+    z-index: 10; /* Asegúrate de que esté por encima del mapa */
+    margin: 30px 20px; /* Espacio alrededor del combo box */
+}
+
+.select-container{
+    width: 100% !important;
+    display: flex; /* Habilita flexbox para alinear elementos */
+    justify-content: flex-end; /* Alinea el contenido a la derecha */
+    background-color: #101011ce;
+    float: left;
+}
+  /* Cambiar el color del fondo y el texto del select */
+ion-select {
+    --background: #101011ce; /* Color de fondo */
+    --color: #1c1b1b  !important; /* Color del texto */
+    width: 100px;
+    color: #fff;
+    text-align: right;
+    
+}
+
+ion-select label{
+    padding: 10px !important;
+    padding: 30px;
+}
+
+
