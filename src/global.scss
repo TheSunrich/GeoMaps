@@ -35,3 +35,17 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+// se agrega importación de estilos de mapbox
+@import '~mapbox-gl/dist/mapbox-gl.css';
+
+/* Asegura que el modal de SweetAlert se muestre por encima */
+.swal2-container {
+    z-index: 9999 !important; /* Aseguramos que esté por encima de todo */
+    margin-top: 30%;
+  }
+  
+  .swal2-popup {
+    position: fixed !important; /* Se asegura que esté en la ventana de la aplicación */
+    z-index: 9999 !important; /* Fuerza la superposición sobre otros elementos */
+  }
