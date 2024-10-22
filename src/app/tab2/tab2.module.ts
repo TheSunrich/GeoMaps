@@ -7,7 +7,7 @@ import { ExploreContainerComponentModule } from '../explore-container/explore-co
 
 import { Tab2PageRoutingModule } from './tab2-routing.module';
 
-
+import { MapModule } from '../components/map/map.module'; // Importar el MapModule
 
 @NgModule({
   imports: [
@@ -15,7 +15,8 @@ import { Tab2PageRoutingModule } from './tab2-routing.module';
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
-    Tab2PageRoutingModule
+    Tab2PageRoutingModule,
+    MapModule // Importar MapModule aquí
   ],
   declarations: [Tab2Page]
 })

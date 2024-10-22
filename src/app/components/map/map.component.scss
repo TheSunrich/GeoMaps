@@ -3,7 +3,7 @@
     height: 100%; /* El contenedor ocupará toda la altura disponible */
 }
 
-#map,  #map1 {
+#map {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -12,7 +12,6 @@
     width: 100%;
     height: 100%;
 }
-
 
 ion-select {
     position: absolute; /* Coloca el combo box en la parte superior */
@@ -41,5 +40,3 @@ ion-select label{
     padding: 10px !important;
     padding: 30px;
 }
-
-

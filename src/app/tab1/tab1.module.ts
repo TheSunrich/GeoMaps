@@ -7,9 +7,8 @@ import { ExploreContainerComponentModule } from '../explore-container/explore-co
 
 import { Tab1PageRoutingModule } from './tab1-routing.module';
 
-import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
-
-import { RouteReuseStrategy } from '@angular/router';
+import { MapModule } from '../components/map/map.module'; // Importar el MapModule
+//import { MapComponent } from '../components/map/map.component';
 
 @NgModule({
   imports: [
@@ -17,12 +16,9 @@ import { RouteReuseStrategy } from '@angular/router';
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
-    Tab1PageRoutingModule
+    Tab1PageRoutingModule,
+    MapModule // Importar MapModule aquí
   ],
-  providers: [
-    Geolocation, // Asegúrate de añadir Geolocation aquí
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
-  ],
-  declarations: [Tab1Page]
+  declarations: [Tab1Page/*, MapComponent*/]
 })
 export class Tab1PageModule {}
