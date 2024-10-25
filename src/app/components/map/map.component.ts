@@ -97,9 +97,9 @@ export class MapComponent  implements OnInit {
           icon: 'error',
           title: 'Error',
           text: `No se pudo obtener la ubicación: ${data.message}`,
-          customClass: {
+          /*customClass: {
             popup: 'centered-popup' // Clase personalizada para estilos específicos
-          }
+          }*/
         });
         this.map.resize();
         
