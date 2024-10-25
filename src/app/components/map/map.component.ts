@@ -82,8 +82,8 @@ export class MapComponent  implements OnInit {
         if (!this.map) {
           this.map = new mapboxgl.Map({
             //container: 'map',
-            // container: 'map',
-            container: this.mapId, // Usa el ID único
+            container: 'map',
+            //container: this.mapId, // Usa el ID único
             style: 'mapbox://styles/mapbox/streets-v11',
             center: [-101.683670, 21.122115],
             zoom: 13,
@@ -92,11 +92,16 @@ export class MapComponent  implements OnInit {
           this.map.resize();
         }
         console.error('Error al obtener la ubicación:', data);
+        
         Swal.fire({
           icon: 'error',
           title: 'Error',
           text: `No se pudo obtener la ubicación: ${data.message}`,
+          customClass: {
+            popup: 'centered-popup' // Clase personalizada para estilos específicos
+          }
         });
+        this.map.resize();
         
         
       }
@@ -168,7 +173,14 @@ export class MapComponent  implements OnInit {
 
   onOptionChange() {
     console.log('Opción seleccionada:', this.selectedOption);
-    // Aquí puedes agregar lógica adicional basada en la opción seleccionada
+     // Si el mapa está inicializado, actualiza el radio de proximidad
+    if (this.map && this.marker) {
+      const userLocation = this.marker.getLngLat().toArray() as [number, number]; // Obtener la ubicación actual del usuario
+
+      // Dibuja el círculo con el nuevo radio
+      const radius = Number(this.selectedOption) || 1000; 
+      this.drawCircle(userLocation, radius);
+  }
     
   }
 
