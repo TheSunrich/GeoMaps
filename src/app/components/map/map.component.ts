@@ -106,11 +106,19 @@ export class MapComponent implements OnInit {
     });
   }
 
+  clearPins() {
+    const existingMarkers = document.querySelectorAll('.mapboxgl-marker');
+    existingMarkers.forEach(marker => marker.remove());
+  }
+  
   addPins(center: [number, number], radius: number) {
     if (!this.map) {
       console.error('El mapa no está inicializado.');
       return;
     }
+
+  // Limpiar los pines anteriores
+  this.clearPins();
   
     const pins = this.generateRandomPins(center, radius, 3); // Generar 3 pines aleatorios dentro del círculo
     console.log('Coordenadas de los pines:', pins); // Mensaje de depuración
