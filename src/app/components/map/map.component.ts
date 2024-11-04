@@ -79,12 +79,29 @@ export class MapComponent implements OnInit {
           this.addPins(userLocation, radius);
         }
       } else {
+        if (!this.map) {
+          this.map = new mapboxgl.Map({
+            //container: 'map',
+            container: 'map',
+            //container: this.mapId, // Usa el ID único
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-101.683670, 21.122115],
+            zoom: 13,
+            accessToken: environment.mapboxToken
+          });
+          this.map.resize();
+        }
         console.error('Error al obtener la ubicación:', data);
+        
         Swal.fire({
           icon: 'error',
           title: 'Error',
           text: `No se pudo obtener la ubicación: ${data.message}`,
+          /*customClass: {
+            popup: 'centered-popup' // Clase personalizada para estilos específicos
+          }*/
         });
+        this.map.resize();
       }
     });
   }
@@ -245,6 +262,7 @@ generateRandomPinInfo(): PinInfo {
 
   onOptionChange() {
     console.log('Opción seleccionada:', this.selectedOption);
+
   if (this.map && this.marker) {
     const userLocation: [number, number] = [
       this.marker.getLngLat().lng,
@@ -254,6 +272,7 @@ generateRandomPinInfo(): PinInfo {
     this.drawCircle(userLocation, radius);
     this.addPins(userLocation, radius);
     // Aquí puedes agregar lógica adicional basada en la opción seleccionada
+
   }
 }
 }
