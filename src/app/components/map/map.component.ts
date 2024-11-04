@@ -45,21 +45,21 @@ export class MapComponent implements OnInit {
       });
       this.map.resize();
     }
-
+  
     // Monitorear la ubicación del usuario
     const watch = this.geolocation.watchPosition();
-
+  
     watch.subscribe((data) => {
       if ('coords' in data) {
         const userLocation: [number, number] = [
           data.coords.longitude,
           data.coords.latitude,
         ];
-
+  
         if (this.map) {
           // Actualiza la posición central del mapa
           this.map.setCenter(userLocation);
-
+  
           // Actualiza el marcador del usuario
           if (this.marker) {
             this.marker.setLngLat(userLocation);
@@ -68,15 +68,15 @@ export class MapComponent implements OnInit {
               .setLngLat(userLocation)
               .addTo(this.map);
           }
-
+  
           this.map.resize();
-
+  
           // Dibuja el círculo de proximidad según la opción seleccionada
           const radius = Number(this.selectedOption) || 1000;
           this.drawCircle(userLocation, radius);
-
+  
           // Llamar la función para agregar pines al mapa
-          this.addPins();
+          this.addPins(userLocation, radius);
         }
       } else {
         console.error('Error al obtener la ubicación:', data);
@@ -89,48 +89,19 @@ export class MapComponent implements OnInit {
     });
   }
 
-  addPins() {
-    // Datos de los pines con múltiples propiedades
-    const pins = [
-      {
-        lng: -101.686,
-        lat: 21.125,
-        info: {
-          name: 'Restaurante La Esquina',
-          address: 'Calle Falsa 123',
-          openingHours: '8:00 AM',
-          closingHours: '10:00 PM',
-          phone: '(123) 456-7890'
-        }
-      },
-      {
-        lng: -101.680,
-        lat: 21.130,
-        info: {
-          name: 'Café Central',
-          address: 'Avenida Siempre Viva 456',
-          openingHours: '7:00 AM',
-          closingHours: '8:00 PM',
-          phone: '(987) 654-3210'
-        }
-      },
-      {
-        lng: -101.690,
-        lat: 21.120,
-        info: {
-          name: 'Hotel Las Palmas',
-          address: 'Boulevard Principal 789',
-          openingHours: '24 horas',
-          closingHours: 'N/A',
-          phone: '(555) 123-4567'
-        }
-      }
-    ];
+  addPins(center: [number, number], radius: number) {
+    if (!this.map) {
+      console.error('El mapa no está inicializado.');
+      return;
+    }
   
-    pins.forEach((pin) => {
-      const marker = new mapboxgl.Marker()
-        .setLngLat([pin.lng, pin.lat])
-        .addTo(this.map!); // Agregar el marcador al mapa
+    const pins = this.generateRandomPins(center, radius, 3); // Generar 3 pines aleatorios dentro del círculo
+    console.log('Coordenadas de los pines:', pins); // Mensaje de depuración
+    pins.forEach(pin => {
+      console.log('Agregando pin en:', pin.coordinates); // Mensaje de depuración
+      const marker = new mapboxgl.Marker({ color: 'red' }) // Asegúrate de que el pin sea visible
+        .setLngLat(pin.coordinates)
+        .addTo(this.map!); // El operador '!' asegura que this.map no es undefined
   
       // Evento click en el pin
       marker.getElement().addEventListener('click', () => {
@@ -138,7 +109,53 @@ export class MapComponent implements OnInit {
       });
     });
   }
+
+  generateRandomPins(center: [number, number], radius: number, numPins: number): { coordinates: [number, number], info: PinInfo }[] {
+    const pins: { coordinates: [number, number], info: PinInfo }[] = [];
+    const minDistance = 0.1 * radius; // Límite inferior del 10% del radio
   
+    for (let i = 0; i < numPins; i++) {
+      const angle = Math.random() * 2 * Math.PI; // Ángulo aleatorio en radianes
+      const distance = minDistance + Math.random() * (radius - minDistance); // Distancia aleatoria dentro del radio
+  
+      // Calcular las nuevas coordenadas en base a la distancia en metros
+      const deltaLat = distance * Math.cos(angle) / 111320; // 1 grado de latitud = 111.32 km
+      const deltaLng = distance * Math.sin(angle) / (111320 * Math.cos(center[1] * (Math.PI / 180))); // 1 grado de longitud varía con la latitud
+  
+      const lat = center[1] + deltaLat;
+      const lng = center[0] + deltaLng;
+  
+      // Asegurarse de que las coordenadas estén dentro del rango válido
+      if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+        pins.push({
+          coordinates: [lng, lat],
+          info: this.generateRandomPinInfo() // Generar información aleatoria para el pin
+        });
+      } else {
+        console.error(`Coordenadas inválidas calculadas: [${lng}, ${lat}]`);
+      }
+    }
+  
+    return pins;
+  }
+
+generateRandomPinInfo(): PinInfo {
+  const names = ['Restaurante La Esquina', 'Café Central', 'Hotel Las Palmas', 'Tienda de regalos', 'Farmacia San Pablo'];
+  const addresses = ['Calle Falsa 123', 'Avenida Siempre Viva 456', 'Boulevard Principal 789', 'Plaza de la Libertad', 'Calle de la Salud 012'];
+  const openingHours = ['8:00 AM', '7:00 AM', '24 horas'];
+  const closingHours = ['10:00 PM', '8:00 PM', 'N/A'];
+  const phones = ['(123) 456-7890', '(987) 654-3210', '(555) 123-4567',   '(777) 888-9999', '(000) 111-2222'];
+
+  const index = Math.floor(Math.random() * names.length);
+
+  return {
+    name: names[index],
+    address: addresses[index],
+    openingHours: openingHours[index],
+    closingHours: closingHours[index],
+    phone: phones[index]
+  };
+}
 
   // Método para mostrar SweetAlert con la información del pin
   showPinInfo(info: PinInfo) {
@@ -228,6 +245,15 @@ export class MapComponent implements OnInit {
 
   onOptionChange() {
     console.log('Opción seleccionada:', this.selectedOption);
+  if (this.map && this.marker) {
+    const userLocation: [number, number] = [
+      this.marker.getLngLat().lng,
+      this.marker.getLngLat().lat
+    ];
+    const radius = Number(this.selectedOption) || 1000;
+    this.drawCircle(userLocation, radius);
+    this.addPins(userLocation, radius);
     // Aquí puedes agregar lógica adicional basada en la opción seleccionada
   }
+}
 }
