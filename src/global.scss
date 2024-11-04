@@ -41,13 +41,14 @@
 
 /* Asegura que el modal de SweetAlert se muestre por encima */
 .swal2-container {
-  z-index: 9999 !important; /* Aseguramos que esté por encima de todo */
-  margin-top: 30%;
+  z-index: 5; /* Aseguramos que esté por encima de todo */
+  margin-top: 20%;
+  background: none;
 }
 
 .swal2-popup {
-  position: fixed !important; /* Se asegura que esté en la ventana de la aplicación */
-  z-index: 9999 !important; /* Fuerza la superposición sobre otros elementos */
+  position: fixed; /* Se asegura que esté en la ventana de la aplicación */
+  z-index: 6; /* Fuerza la superposición sobre otros elementos */
 }
 
 .mapboxgl-canvas{
