@@ -25,7 +25,7 @@ export class MapComponent implements OnInit {
   map: mapboxgl.Map | undefined;
   marker: mapboxgl.Marker | undefined; // Declaramos la propiedad marker
   selectedOption: string = '1000';
-  
+  storeMarkers: mapboxgl.Marker[] = []; // Arreglo para almacenar pines de tiendas
 
   constructor(private geolocation: Geolocation) {}
 
@@ -107,8 +107,8 @@ export class MapComponent implements OnInit {
   }
 
   clearPins() {
-    const existingMarkers = document.querySelectorAll('.mapboxgl-marker');
-    existingMarkers.forEach(marker => marker.remove());
+    this.storeMarkers.forEach(marker => marker.remove()); // Elimina cada pin de la tienda del mapa
+    this.storeMarkers = []; // Limpia el arreglo para indicar que no hay pines de tienda activos
   }
   
   addPins(center: [number, number], radius: number) {
@@ -128,6 +128,9 @@ export class MapComponent implements OnInit {
         .setLngLat(pin.coordinates)
         .addTo(this.map!); // El operador '!' asegura que this.map no es undefined
   
+      // se agrega al arreglo
+      this.storeMarkers.push(marker); // Almacena el pin rojo en el arreglo
+
       // Evento click en el pin
       marker.getElement().addEventListener('click', () => {
         this.showPinInfo(pin.info); // Pasar el objeto info a la función
