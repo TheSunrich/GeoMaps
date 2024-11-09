@@ -1,0 +1,32 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      Filtrar Tiendas
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Campo de búsqueda por nombre -->
+  <ion-item>
+    <ion-label>Buscar por nombre</ion-label>
+    <ion-input [(ngModel)]="filter.name" (ngModelChange)="applyFilters()" placeholder="Nombre de la tienda"></ion-input>
+  </ion-item>
+  
+  <ion-item>
+    <ion-label>Buscar por descripción</ion-label>
+    <ion-input [(ngModel)]="filter.description" (ngModelChange)="applyFilters()" placeholder="Descripción"></ion-input>
+  </ion-item>
+  
+
+  <!-- Lista de tiendas filtrada -->
+  <ion-list>
+    <ion-item *ngFor="let store of filteredStores">
+      <ion-label>
+        <h2>{{ store.name }}</h2>
+        <p>{{ store.description }}</p>
+        <p>{{ store.address }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
